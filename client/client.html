@@ -7,6 +7,90 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
+const handleResponse = (xhr) => {
+  const responseTitle = document.querySelector("#responseTitle");
+  const responseText = document.querySelector("#response");
+  const responseType = document.querySelector("#responseType");
+  const type = xhr.getResponseHeader('content-type');
+  
+  responseType.innerHTML = type;
+  if(type === "application/json"){
+    const obj = JSON.parse(xhr.response);
+    responseText.innerHTML = obj.message;
+    console.log(obj);
+  }
+  else if(type === "text/xml"){
+    const message = xhr.responseXML.querySelector('message').textContent;
+    const id = xhr.responseXML.querySelector('id').textContent;
+
+    responseText.innerHTML = message;
+    responseTitle.innerHTML = id;
+  }
+  switch(xhr.status){
+    case 200:
+    responseTitle.innerHTML = '<b>Success!</b>'
+      break;
+
+    case 400:
+    responseTitle.innerHTML = '<b>Bad Request!</b>'
+      break;
+      
+    case 401:
+    responseTitle.innerHTML = '<b>unauthorized</b>'
+      break;
+
+    case 403:
+    responseTitle.innerHTML = '<b>forbidden</b>'
+      break;
+    
+    case 500:
+    responseTitle.innerHTML = '<b>Internal Error</b>'
+      break;
+    
+    case 501:
+    responseTitle.innerHTML = '<b>Not Implemented</b>'
+      break;
+
+    case 404:
+    responseTitle.innerHTML = '<b>Resource Not Found!</b>'
+      break;
+
+    default:
+    responseTitle.innerHTML = '<b>Error Code not implemented</b>'
+      break;
+  }
+  
+  
+}
+
+const sendAjax = (url, acceptedType) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.setRequestHeader("Accept", acceptedType);
+  xhr.onload = () => handleResponse(xhr);
+
+  xhr.send();
+}
+
+const init = () => {
+  const sendButton = document.querySelector("#send");
+  const valueSelect = document.querySelector("#page");
+  const method = document.querySelector('#type');
+
+  const sendJSON = () => { sendAjax(valueSelect.value, 'application/json')}
+  const sendXML = () => { sendAjax(valueSelect.value, 'text/xml')}
+  
+  sendButton.addEventListener('click', () => {
+    if(method.value === 'application/json'){
+      sendJSON();
+    }
+    else{
+      sendXML();
+    }
+  })
+};
+
+window.onload = init;
   </script>
 </head>
 <body>
@@ -28,6 +112,14 @@
     <button id="send">Send</button>
   </section>
   <section id="content">
+  </section>
+  <section>
+    <div id="responseInfo">
+      <h2 id="responseTitle"></h4>
+      <p id="response"></p>
+      <p id="responseType"></p>
+
+    </div>
   </section>
 </body>
 </html>

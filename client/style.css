@@ -19,3 +19,9 @@ html, body {
   font-size: 2em;
   text-align: center;
 }
+#responseInfo {
+  text-align: center;
+}
+#responseInfo p {
+  font-size: medium;
+}
